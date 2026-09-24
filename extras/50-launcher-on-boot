@@ -1,0 +1,40 @@
+#!/bin/sh
+# Open webos-launcher after power-on. webOS restores the last input itself (~60-90 s
+# after boot), so wait for that first, then bring the launcher to the front.
+# Retries only while the foreground is still an input/LG home, never over an app
+# the user picked in the meantime. Log: /tmp/launcher-on-boot.log
+
+APP=works.partridge.webos-launcher
+LOG=/tmp/launcher-on-boot.log
+
+# luna-send only prints with a tty; `script` provides one.
+fg_app () {
+	script -q -c "luna-send -n 1 luna://com.webos.applicationManager/getForegroundAppInfo '{}'" /dev/null </dev/null \
+		| sed -n 's/.*"appId":"\([^"]*\)".*/\1/p'
+}
+
+replaceable () {
+	case "$1" in
+		''|com.webos.app.hdmi*|com.webos.app.livetv|com.webos.app.home|com.webos.app.fullhome) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+(
+	waited=0
+	while [ $waited -lt 180 ]; do
+		app=$(fg_app)
+		[ -n "$app" ] && break
+		sleep 2; waited=$((waited + 2))
+	done
+	echo "$(date '+%F %T') first foreground '${app}' after ${waited}s" >>"$LOG"
+	sleep 4
+	for try in 1 2 3; do
+		app=$(fg_app)
+		[ "$app" = "$APP" ] && break
+		if ! replaceable "$app"; then echo "$(date '+%F %T') user opened '$app', leaving it" >>"$LOG"; break; fi
+		luna-send -n 1 luna://com.webos.applicationManager/launch "{\"id\":\"$APP\"}" >/dev/null 2>&1
+		echo "$(date '+%F %T') launch $try (was '$app')" >>"$LOG"
+		sleep 6
+	done
+) </dev/null >/dev/null 2>&1 &

@@ -38,6 +38,19 @@ The launcher doesn't take over the HOME button. On a rooted TV you can map a but
 with [LG Input Hook](https://github.com/Simon34545/lginputhook) (app ID
 `works.partridge.webos-launcher`).
 
+## Make it the home screen (rooted TV)
+
+Two extras in [extras/](extras/), tested on webOS 5.6.2:
+
+- **HOME button → launcher**: install [LG Input Hook](https://github.com/Simon34545/lginputhook),
+  elevate its service (`/media/developer/apps/usr/palm/services/org.webosbrew.hbchannel.service/elevate-service org.webosbrew.inputhook.service`),
+  call `luna://org.webosbrew.inputhook.service/start` and `/autostart`, then copy
+  `extras/inputhook-keybinds.json` to `/home/root/.config/lginputhook/keybinds.json`.
+  773 is `RF_HOME` (Magic Remote MR20 and IR remote).
+- **Open on power-on**: copy `extras/50-launcher-on-boot` to `/var/lib/webosbrew/init.d/`
+  (`chmod 755`). It waits until webOS has restored the last input, then opens the
+  launcher, unless you've already opened an app. Log: `/tmp/launcher-on-boot.log`.
+
 ## Install
 
 **From the Homebrew Channel** (rooted TVs): search for *Launcher*.
