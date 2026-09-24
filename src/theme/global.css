@@ -90,12 +90,12 @@ html, body {
 }
 .row--focused .row__label { color: var(--color-text-secondary); }
 
-/* The viewport clips; the track slides. Extra vertical padding leaves room for the
-   focus scale so tiles are never clipped while enlarged. */
+/* The viewport clips; the track slides. Extra padding on all sides leaves room for the
+   focus scale so tiles are never clipped while enlarged (also the first/last tile). */
 .row__viewport {
 	overflow: hidden;
-	padding: 16px 0;
-	margin: -16px 0;
+	padding: 16px;
+	margin: -16px;
 	opacity: var(--motion-unfocused-row-opacity);
 	transition: opacity var(--motion-focus-ms) ease-out;
 }

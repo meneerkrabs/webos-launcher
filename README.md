@@ -1,8 +1,12 @@
 # webOS Launcher
 
 A minimalist home screen for LG webOS TVs: a greeting and clock, a row of your apps, a
-row of your inputs, and a way back to LG's own home. Built for **webOS 6 (Chrome 79)**,
-where sideloaded web apps are more restricted than on newer firmware.
+row of your inputs, and a way back to LG's own home. Built for **webOS 5 (Chrome 68)** and
+**webOS 6 (Chrome 79)**, where sideloaded web apps are more restricted than on newer firmware.
+
+> **This fork** targets Chrome 68 so it runs on webOS 5.x (tested on webOS 5.6.2, 2020
+> model), adds Dutch apps (NPO Start, NLZIET, Videoland, HBO Max, SkyShowtime, …) with
+> icons, and fixes the focused first/last tile being clipped at the row edge.
 
 - **Apps**: your choice of apps, in your order
 - **Sources**: Live TV and the HDMI inputs, with the names set in the TV's input settings
@@ -50,7 +54,7 @@ Needs Node 18+.
 
 ```sh
 npm install
-npm run build      # type-check, then build dist/ (chrome79, classic script)
+npm run build      # type-check, then build dist/ (chrome68, classic script)
 npm run package    # dist/ → build/works.partridge.webos-launcher_<version>_all.ipk
 ```
 
@@ -97,8 +101,8 @@ Homebrew Channel 0.7.3. Everything else is untested:
 
 - Newer webOS (22 and later) should run it, since the build targets an older engine, but
   the Luna calls it relies on haven't been confirmed there.
-- Older webOS (5 and earlier) is unknown; the External Input Manager call
-  (`com.webos.service.eim/getAllInputStatus`) may differ.
+- **webOS 5.6.2** (2020 model, Chrome 68, rooted, Developer Mode): works, including
+  `getAppLoadStatus` and `eim/getAllInputStatus`. webOS 4 and earlier is unknown.
 - Only the UK app IDs in the catalogue were checked on a real TV. The others come from
   public sources and are simply skipped if wrong.
 
@@ -107,9 +111,10 @@ above.
 
 ### Notes for developers
 
-- **Chrome 79.** `<script type="module">` won't load from `file://` on webOS 6 (no MIME
+- **Chrome 68/79.** `<script type="module">` won't load from `file://` on webOS 6 (no MIME
   type), and `?.`/`??` are syntax errors. [vite.config.ts](vite.config.ts) builds one IIFE
-  for `chrome79` and rewrites the script tag; CI fails the build if ES2020 syntax slips
+  for `chrome68` and rewrites the script tag. Runtime APIs aren't polyfilled, so
+  `tsconfig.json` limits `lib` to ES2018 (no `Array#flat`, `Object.fromEntries`); CI fails the build if ES2020 syntax slips
   in. The CSS avoids flex `gap`, `inset` and `aspect-ratio`.
 - **Luna calls used** (all in the "public" LS2 group a web app gets):
   `applicationManager/launch`, `applicationManager/getAppLoadStatus`,
